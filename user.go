@@ -33,11 +33,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mjibson/goread/_third_party/code.google.com/p/go-charset/charset"
-	_ "github.com/mjibson/goread/_third_party/code.google.com/p/go-charset/data"
-	mpg "github.com/mjibson/goread/_third_party/github.com/MiniProfiler/go/miniprofiler_gae"
-	"github.com/mjibson/goread/_third_party/github.com/mjibson/goon"
-	"github.com/mjibson/goread/sanitizer"
+	"github.com/tprynn/goread/_third_party/code.google.com/p/go-charset/charset"
+	_ "github.com/tprynn/goread/_third_party/code.google.com/p/go-charset/data"
+	mpg "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler_gae"
+	"github.com/tprynn/goread/_third_party/github.com/mjibson/goon"
+	"github.com/tprynn/goread/sanitizer"
 
 	"appengine"
 	"appengine/blobstore"

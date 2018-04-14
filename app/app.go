@@ -3,9 +3,9 @@ package app
 import (
 	"net/http"
 
-	"github.com/mjibson/goread/_third_party/github.com/gorilla/mux"
+	"github.com/tprynn/goread/_third_party/github.com/gorilla/mux"
 
-	app "github.com/mjibson/goread"
+	app "github.com/tprynn/goread"
 )
 
 func init() {
