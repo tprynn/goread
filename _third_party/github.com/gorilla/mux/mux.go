@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/mjibson/goread/_third_party/github.com/gorilla/context"
+	"github.com/tprynn/goread/_third_party/github.com/gorilla/context"
 )
 
 // NewRouter returns a new router instance.

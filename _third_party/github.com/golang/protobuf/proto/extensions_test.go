@@ -36,8 +36,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto"
-	pb "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto/testdata"
+	"github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto"
+	pb "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto/testdata"
 )
 
 func TestGetExtensionsWithMissingExtensions(t *testing.T) {

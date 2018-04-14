@@ -5,7 +5,7 @@
 package simplifiedchinese
 
 import (
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding"
 )
 
 // All is a list of all defined encodings in this package.

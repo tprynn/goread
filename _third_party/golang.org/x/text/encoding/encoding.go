@@ -14,13 +14,13 @@
 // Encoding implementations are provided in other packages, such as
 // golang.org/x/text/encoding/charmap and
 // golang.org/x/text/encoding/japanese.
-package encoding // import "github.com/mjibson/goread/_third_party/golang.org/x/text/encoding"
+package encoding // import "github.com/tprynn/goread/_third_party/golang.org/x/text/encoding"
 
 import (
 	"errors"
 	"unicode/utf8"
 
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/transform"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/transform"
 )
 
 // Encoding is a character set encoding that can be transformed to and from

@@ -14,7 +14,7 @@
 // may have moved or changed.
 // CLDR version 22 is the first version supported by this package.
 // Older versions may not work.
-package cldr // import "github.com/mjibson/goread/_third_party/golang.org/x/text/cldr"
+package cldr // import "github.com/tprynn/goread/_third_party/golang.org/x/text/cldr"
 
 import (
 	"fmt"

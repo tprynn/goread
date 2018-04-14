@@ -6,7 +6,7 @@
 //
 // The mapping from encoding labels to encodings is defined at
 // https://encoding.spec.whatwg.org/.
-package charset // import "github.com/mjibson/goread/_third_party/golang.org/x/net/html/charset"
+package charset // import "github.com/tprynn/goread/_third_party/golang.org/x/net/html/charset"
 
 import (
 	"bytes"
@@ -16,10 +16,10 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/mjibson/goread/_third_party/golang.org/x/net/html"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/charmap"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/transform"
+	"github.com/tprynn/goread/_third_party/golang.org/x/net/html"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/charmap"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/transform"
 )
 
 // Lookup returns the encoding with the specified label, and its canonical

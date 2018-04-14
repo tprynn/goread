@@ -12,14 +12,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/charmap"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/japanese"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/korean"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/simplifiedchinese"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/traditionalchinese"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/unicode"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/transform"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/charmap"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/japanese"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/korean"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/simplifiedchinese"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/traditionalchinese"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/unicode"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/transform"
 )
 
 func trim(s string) string {

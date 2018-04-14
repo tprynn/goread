@@ -3,8 +3,8 @@
 package charmap
 
 import (
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/internal/identifier"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/internal/identifier"
 )
 
 // CodePage437 is the IBM Code Page 437 encoding.

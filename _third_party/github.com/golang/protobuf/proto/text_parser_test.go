@@ -36,9 +36,9 @@ import (
 	"reflect"
 	"testing"
 
-	. "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto"
-	proto3pb "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto/proto3_proto"
-	. "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto/testdata"
+	. "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto"
+	proto3pb "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto/proto3_proto"
+	. "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto/testdata"
 )
 
 type UnmarshalTextTest struct {

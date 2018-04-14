@@ -3,7 +3,7 @@ package appstats
 import (
 	"reflect"
 
-	"github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto"
+	"github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto"
 )
 
 const (

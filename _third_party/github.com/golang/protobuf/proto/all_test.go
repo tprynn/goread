@@ -44,8 +44,8 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto"
-	. "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto/testdata"
+	. "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto"
+	. "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto/testdata"
 )
 
 var globalO *Buffer

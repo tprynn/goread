@@ -39,10 +39,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto"
+	"github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto"
 
-	proto3pb "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto/proto3_proto"
-	pb "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto/testdata"
+	proto3pb "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto/proto3_proto"
+	pb "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto/testdata"
 )
 
 // textMessage implements the methods that allow it to marshal and unmarshal

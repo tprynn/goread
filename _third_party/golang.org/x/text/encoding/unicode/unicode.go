@@ -3,16 +3,16 @@
 // license that can be found in the LICENSE file.
 
 // Package unicode provides Unicode encodings such as UTF-16.
-package unicode // import "github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/unicode"
+package unicode // import "github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/unicode"
 
 import (
 	"errors"
 	"unicode/utf16"
 	"unicode/utf8"
 
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/internal/identifier"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/transform"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/internal/identifier"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/transform"
 )
 
 // TODO: I think the Transformers really should return errors on unmatched

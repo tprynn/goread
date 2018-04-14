@@ -4,7 +4,7 @@
 package data
 
 import (
-	"github.com/mjibson/goread/_third_party/code.google.com/p/go-charset/charset"
+	"github.com/tprynn/goread/_third_party/code.google.com/p/go-charset/charset"
 	"io"
 	"io/ioutil"
 	"strings"

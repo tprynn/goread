@@ -6,9 +6,9 @@
 package internal
 
 import (
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/encoding/internal/identifier"
-	"github.com/mjibson/goread/_third_party/golang.org/x/text/transform"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/internal/identifier"
+	"github.com/tprynn/goread/_third_party/golang.org/x/text/transform"
 )
 
 // Encoding is an implementation of the Encoding interface that adds the String

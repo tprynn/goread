@@ -24,8 +24,8 @@ import (
 	"appengine/memcache"
 	"appengine/user"
 	"appengine_internal"
-	"github.com/mjibson/goread/_third_party/github.com/MiniProfiler/go/miniprofiler"
-	"github.com/mjibson/goread/_third_party/github.com/mjibson/appstats"
+	"github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler"
+	"github.com/tprynn/goread/_third_party/github.com/mjibson/appstats"
 )
 
 func init() {

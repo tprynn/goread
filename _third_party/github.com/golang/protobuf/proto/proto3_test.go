@@ -34,9 +34,9 @@ package proto_test
 import (
 	"testing"
 
-	"github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto"
-	pb "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto/proto3_proto"
-	tpb "github.com/mjibson/goread/_third_party/github.com/golang/protobuf/proto/testdata"
+	"github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto"
+	pb "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto/proto3_proto"
+	tpb "github.com/tprynn/goread/_third_party/github.com/golang/protobuf/proto/testdata"
 )
 
 func TestProto3ZeroValues(t *testing.T) {
