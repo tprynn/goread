@@ -43,6 +43,8 @@ import (
 )
 
 func ImportOpmlTask(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+	c.Infof("top of ImportOpmlTask")
+
 	gn := goon.FromContext(c)
 	userid := r.FormValue("user")
 	bk := r.FormValue("key")
@@ -54,7 +56,7 @@ func ImportOpmlTask(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	if s, err := strconv.Atoi(r.FormValue("skip")); err == nil {
 		skip = s
 	}
-	c.Debugf("reader import for %v, skip %v", userid, skip)
+	c.Infof("reader import for %v, skip %v", userid, skip)
 
 	d := xml.NewDecoder(blobstore.NewReader(c, appengine.BlobKey(bk)))
 	d.CharsetReader = charset.NewReader
@@ -104,7 +106,7 @@ func ImportOpmlTask(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 				c.Warningf("opml import error: %v", err.Error())
 				// todo: do something here?
 			}
-			c.Debugf("opml import: %s, %s", o.Title, o.XmlUrl)
+			c.Infof("opml import: %s, %s", o.Title, o.XmlUrl)
 			wg.Done()
 		}(i)
 	}

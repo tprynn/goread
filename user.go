@@ -44,6 +44,9 @@ import (
 	"appengine/datastore"
 	"appengine/taskqueue"
 	"appengine/user"
+
+	// appengine_new "google.golang.org/appengine"
+	// "google.golang.org/appengine/log"
 )
 
 func LoginGoogle(c mpg.Context, w http.ResponseWriter, r *http.Request) {
@@ -100,6 +103,10 @@ func UploadUrl(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func ImportOpml(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+	// appengine_ctx := appengine_new.NewContext(r)
+
+	// log.Infof(appengine_ctx, "ImportOpml: top of ImportOpml")
+
 	cu := user.Current(c)
 	gn := goon.FromContext(c)
 	u := User{Id: cu.ID}
@@ -108,6 +115,8 @@ func ImportOpml(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	backupOPML(c)
+
+	// log.Infof(appengine_ctx, "ImportOpml: after backupOPML")
 
 	blobs, _, err := blobstore.ParseUpload(r)
 	if err != nil {
@@ -131,6 +140,8 @@ func ImportOpml(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 		serveError(w, err)
 		return
 	}
+
+	// log.Infof(appengine_ctx, "ImportOpml: read data from blobstore")
 
 	buf := bytes.NewReader(fdata)
 	// attempt to extract from google reader takeout zip
@@ -159,11 +170,22 @@ func ImportOpml(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// log.Infof(appengine_ctx, "ImportOpml: after decode XML")
+
 	task := taskqueue.NewPOSTTask(routeUrl("import-opml-task"), url.Values{
 		"key":  {string(file.BlobKey)},
 		"user": {cu.ID},
 	})
-	taskqueue.Add(c, task, "import-reader")
+
+	_, task_err := taskqueue.Add(c, task, "import-reader")
+
+	// log.Infof(appengine_ctx, "ImportOpml: after add task")
+
+	if task_err != nil {
+		// log.Errorf(appengine_ctx, "failed to queue task")
+		serveError(w, task_err)
+		return
+	}
 }
 
 func AddSubscription(c mpg.Context, w http.ResponseWriter, r *http.Request) {
