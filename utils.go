@@ -63,7 +63,6 @@ type Includes struct {
 	Jquery              string
 	JqueryUI            string
 	Underscore          string
-	MiniProfiler        template.HTML
 	User                *User
 	Messages            []string
 	GoogleAnalyticsId   string
@@ -123,7 +122,6 @@ func includes(c context.Context, w http.ResponseWriter, r *http.Request) *Includ
 		Jquery:              Jquery,
 		JqueryUI:            JqueryUI,
 		Underscore:          Underscore,
-		MiniProfiler:        c.Includes(),
 		GoogleAnalyticsId:   GOOGLE_ANALYTICS_ID,
 		GoogleAnalyticsHost: GOOGLE_ANALYTICS_HOST,
 		SubURL:              subURL,
