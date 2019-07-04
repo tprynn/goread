@@ -43,6 +43,7 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/blobstore"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 	"google.golang.org/appengine/user"
 
@@ -167,7 +168,7 @@ func ImportOpml(c context.Context, w http.ResponseWriter, r *http.Request) {
 	if err := d.Decode(&opml); err != nil {
 		del()
 		serveError(w, err)
-		c.Errorf("opml error: %v", err.Error())
+		log.Errorf(c, "opml error: %v", err.Error())
 		return
 	}
 
@@ -199,7 +200,7 @@ func AddSubscription(c context.Context, w http.ResponseWriter, r *http.Request) 
 		},
 	}
 	if err := addFeed(c, cu.ID, o); err != nil {
-		c.Errorf("add sub error (%s): %s", url, err.Error())
+		log.Errorf(c, "add sub error (%s): %s", url, err.Error())
 		serveError(w, err)
 		return
 	}
@@ -208,7 +209,7 @@ func AddSubscription(c context.Context, w http.ResponseWriter, r *http.Request) 
 	ud := UserData{Id: "data", Parent: gn.Key(&User{Id: cu.ID})}
 	gn.Get(&ud)
 	if err := mergeUserOpml(c, &ud, o); err != nil {
-		c.Errorf("add sub error opml (%v): %v", url, err)
+		log.Errorf(c, "add sub error opml (%v): %v", url, err)
 		serveError(w, err)
 		return
 	}
@@ -459,7 +460,7 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 				last = v.Date
 			}
 		}
-		c.Infof("nothing here, move up: %v -> %v", u.Read, last)
+		log.Infof(c, "nothing here, move up: %v -> %v", u.Read, last)
 		if u.Read.Before(last) {
 			putU = true
 			u.Read = last
@@ -472,7 +473,7 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 			putUD = true
 			l.Text += ", update links"
 		} else {
-			c.Errorf("json UL err: %v, %v", err, uf)
+			log.Errorf(c, "json UL err: %v, %v", err, uf)
 		}
 	}
 	if putU {
@@ -508,13 +509,13 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 		}
 		b, err := json.Marshal(o)
 		if err != nil {
-			c.Errorf("cleaning")
+			log.Errorf(c, "cleaning")
 			for _, v := range fl {
 				for _, s := range v {
 					n := sanitizer.CleanNonUTF8(s.Summary)
 					if n != s.Summary {
 						s.Summary = n
-						c.Errorf("cleaned %v", s.Id)
+						log.Errorf(c, "cleaned %v", s.Id)
 						gn.Put(s)
 					}
 				}
@@ -668,12 +669,12 @@ func UploadOpml(c context.Context, w http.ResponseWriter, r *http.Request) {
 	ud := UserData{Id: "data", Parent: gn.Key(&u)}
 	if err := gn.Get(&ud); err != nil {
 		serveError(w, err)
-		c.Errorf("get err: %v", err)
+		log.Errorf(c, "get err: %v", err)
 		return
 	}
 	if b, err := json.Marshal(&opml); err != nil {
 		serveError(w, err)
-		c.Errorf("json err: %v", err)
+		log.Errorf(c, "json err: %v", err)
 		return
 	} else {
 		l := Log{
@@ -705,7 +706,7 @@ func backupOPML(c context.Context) {
 		gz.Close()
 		uo.Compressed = buf.Bytes()
 	} else {
-		c.Errorf("gz err: %v", err)
+		log.Errorf(c, "gz err: %v", err)
 		uo.Opml = ud.Opml
 	}
 	gn.Put(&uo)
@@ -821,7 +822,7 @@ func GetFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 
 func DeleteAccount(c context.Context, w http.ResponseWriter, r *http.Request) {
 	if _, err := doUncheckout(c); err != nil {
-		c.Errorf("uncheckout err: %v", err)
+		log.Errorf(c, "uncheckout err: %v", err)
 	}
 	cu := user.Current(c)
 	gn := goon.FromContext(c)
@@ -856,7 +857,7 @@ func SetStar(c context.Context, w http.ResponseWriter, r *http.Request) {
 		us.Created = time.Now()
 		_, err := gn.Put(us)
 		if err != nil {
-			c.Errorf("star put err: %v", err)
+			log.Errorf(c, "star put err: %v", err)
 			serveError(w, err)
 		}
 	}

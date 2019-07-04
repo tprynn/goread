@@ -44,6 +44,7 @@ import (
 	"github.com/tprynn/goread/sanitizer"
 
 	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
 	"google.golang.org/appengine/taskqueue"
 	"google.golang.org/appengine/urlfetch"
@@ -671,7 +672,7 @@ func parseFix(c context.Context, f *Feed, ss []*Story, fetchUrl string) (*Feed, 
 			} else if s.Title != "" {
 				s.Id = s.Title
 			} else {
-				c.Errorf("story has no id: %v", s)
+				log.Errorf(c, "story has no id: %v", s)
 				continue
 			}
 		}
@@ -823,7 +824,7 @@ func taskSender(c context.Context, queue string, tc chan *taskqueue.Task, done c
 	tasks := make([]*taskqueue.Task, 0, taskLimit)
 	send := func() {
 		taskqueue.AddMulti(c, tasks, queue)
-		c.Infof("added %v tasks", len(tasks))
+		log.Infof(c, "added %v tasks", len(tasks))
 		tasks = tasks[0:0]
 	}
 	for t := range tc {

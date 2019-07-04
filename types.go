@@ -30,6 +30,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 	"google.golang.org/appengine/user"
 )
@@ -153,7 +154,7 @@ func (f *Feed) Subscribe(c context.Context) {
 			"feed": {f.Url},
 		})
 		if _, err := taskqueue.Add(c, t, "update-manual"); err != nil {
-			c.Errorf("taskqueue error: %v", err.Error())
+			log.Errorf(c, "taskqueue error: %v", err.Error())
 		} else {
 			c.Warningf("subscribe feed: %v", f.Url)
 		}

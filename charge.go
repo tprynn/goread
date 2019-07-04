@@ -30,6 +30,7 @@ import (
 	"github.com/mjibson/goon"
 
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/urlfetch"
 	"google.golang.org/appengine/user"
 )
@@ -113,7 +114,7 @@ func Charge(c context.Context, w http.ResponseWriter, r *http.Request) {
 		} else {
 			serveError(w, fmt.Errorf("Error"))
 		}
-		c.Errorf("status: %v, %s", resp.StatusCode, b)
+		log.Errorf(c, "status: %v, %s", resp.StatusCode, b)
 		return
 	}
 	uc, err = setCharge(c, resp)
@@ -172,7 +173,7 @@ func Account(c context.Context, w http.ResponseWriter, r *http.Request) {
 			if resp, err := stripe(c, "GET", "customers/"+uc.Customer, ""); err == nil {
 				if nuc, err := setCharge(c, resp); err == nil {
 					uc = nuc
-					c.Infof("updated user charge %v", cu.ID)
+					log.Infof(c, "updated user charge %v", cu.ID)
 				}
 			}
 		}
@@ -209,8 +210,8 @@ func doUncheckout(c context.Context) (*UserCharge, error) {
 	if err != nil {
 		return nil, err
 	} else if resp.StatusCode != http.StatusOK {
-		c.Errorf("%s", resp.Body)
-		c.Errorf("stripe delete error, but proceeding")
+		log.Errorf(c, "%s", resp.Body)
+		log.Errorf(c, "stripe delete error, but proceeding")
 	}
 	if err := gn.RunInTransaction(func(gn *goon.Goon) error {
 		if err := gn.Get(&u); err != nil && err != datastore.ErrNoSuchEntity {

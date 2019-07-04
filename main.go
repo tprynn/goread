@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -35,6 +34,7 @@ import (
 
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 )
 
 var (
@@ -54,11 +54,13 @@ func init() {
 			"templates/admin-stats.html",
 			"templates/admin-user.html",
 		); err != nil {
-		log.Fatal(err)
+		// log.Criticalf(appengine.NewContext(), "Failed to parse - %v", err)
+		panic(err);
 	}
 	mobileIndex, err = ioutil.ReadFile("static/index.html")
 	if err != nil {
-		log.Fatal(err)
+		// log.Criticalf(appengine.NewContext(), "Couldn't read index.html - %v", err)
+		panic(err);
 	}
 
 	// miniprofiler.ToggleShortcut = "Alt+C"
@@ -159,7 +161,7 @@ func Main(c context.Context, w http.ResponseWriter, r *http.Request) {
 		w.Write(mobileIndex)
 	} else {
 		if err := templates.ExecuteTemplate(w, "base.html", includes(c, w, r)); err != nil {
-			c.Errorf("%v", err)
+			log.Errorf(c, "%v", err)
 			serveError(w, err)
 		}
 	}
@@ -168,7 +170,7 @@ func Main(c context.Context, w http.ResponseWriter, r *http.Request) {
 func addFeed(c context.Context, userid string, outline *OpmlOutline) error {
 	gn := goon.FromContext(c)
 	o := outline.Outline[0]
-	c.Infof("adding feed %v to user %s", o.XmlUrl, userid)
+	log.Infof(c, "adding feed %v to user %s", o.XmlUrl, userid)
 	fu, ferr := url.Parse(o.XmlUrl)
 	if ferr != nil {
 		return ferr

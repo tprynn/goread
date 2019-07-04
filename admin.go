@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
-
 	
 	"github.com/mjibson/goon"
 )
@@ -200,7 +200,7 @@ func AdminUser(c context.Context, w http.ResponseWriter, r *http.Request) {
 			serveError(w, err)
 			return
 		}
-		c.Infof("opml updated")
+		log.Infof(c, "opml updated")
 	}
 	q = datastore.NewQuery(gn.Kind(&Log{})).Ancestor(k)
 	_, err = gn.GetAll(q, &h)

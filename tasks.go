@@ -39,12 +39,13 @@ import (
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/blobstore"
 	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/taskqueue"
 	"google.golang.org/appengine/urlfetch"
 )
 
 func ImportOpmlTask(c context.Context, w http.ResponseWriter, r *http.Request) {
-	c.Infof("top of ImportOpmlTask")
+	log.Infof(c, "top of ImportOpmlTask")
 
 	gn := goon.FromContext(c)
 	userid := r.FormValue("user")
@@ -57,7 +58,7 @@ func ImportOpmlTask(c context.Context, w http.ResponseWriter, r *http.Request) {
 	if s, err := strconv.Atoi(r.FormValue("skip")); err == nil {
 		skip = s
 	}
-	c.Infof("reader import for %v, skip %v", userid, skip)
+	log.Infof(c, "reader import for %v, skip %v", userid, skip)
 
 	d := xml.NewDecoder(blobstore.NewReader(c, appengine.BlobKey(bk)))
 	d.CharsetReader = charset.NewReader
@@ -107,7 +108,7 @@ func ImportOpmlTask(c context.Context, w http.ResponseWriter, r *http.Request) {
 				c.Warningf("opml import error: %v", err.Error())
 				// todo: do something here?
 			}
-			c.Infof("opml import: %s, %s", o.Title, o.XmlUrl)
+			log.Infof(c, "opml import: %s, %s", o.Title, o.XmlUrl)
 			wg.Done()
 		}(i)
 	}
@@ -123,7 +124,7 @@ func ImportOpmlTask(c context.Context, w http.ResponseWriter, r *http.Request) {
 		return err
 	}, nil); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		c.Errorf("ude update error: %v", err.Error())
+		log.Errorf(c, "ude update error: %v", err.Error())
 		return
 	}
 
@@ -136,7 +137,7 @@ func ImportOpmlTask(c context.Context, w http.ResponseWriter, r *http.Request) {
 		taskqueue.Add(c, task, "import-reader")
 	} else {
 		del()
-		c.Infof("opml import done: %v", userid)
+		log.Infof(c, "opml import done: %v", userid)
 	}
 }
 
@@ -147,7 +148,7 @@ func SubscribeCallback(c context.Context, w http.ResponseWriter, r *http.Request
 	furl := r.FormValue("feed")
 	b, _ := base64.URLEncoding.DecodeString(furl)
 	f := Feed{Url: string(b)}
-	c.Infof("url: %v", f.Url)
+	log.Infof(c, "url: %v", f.Url)
 	if err := gn.Get(&f); err != nil {
 		http.Error(w, "", http.StatusNotFound)
 		return
@@ -168,7 +169,7 @@ func SubscribeCallback(c context.Context, w http.ResponseWriter, r *http.Request
 		c.Debugf("subscribed: %v - %v", f.Url, f.Subscribed)
 		return
 	} else if !f.NotViewed() {
-		c.Infof("push: %v", f.Url)
+		log.Infof(c, "push: %v", f.Url)
 		gn.Put(&Log{
 			Parent: gn.Key(&f),
 			Id:     time.Now().UnixNano(),
@@ -178,14 +179,14 @@ func SubscribeCallback(c context.Context, w http.ResponseWriter, r *http.Request
 		b, _ := ioutil.ReadAll(r.Body)
 		nf, ss, err := ParseFeed(c, r.Header.Get("Content-Type"), f.Url, f.Url, b)
 		if err != nil {
-			c.Errorf("parse error: %v", err)
+			log.Errorf(c, "parse error: %v", err)
 			return
 		}
 		if err := updateFeed(c, f.Url, nf, ss, false, true, false); err != nil {
-			c.Errorf("push error: %v", err)
+			log.Errorf(c, "push error: %v", err)
 		}
 	} else {
-		c.Infof("not viewed")
+		log.Infof(c, "not viewed")
 	}
 }
 
@@ -204,7 +205,7 @@ func SubscribeFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 		})
 	}()
 	if err := gn.Get(&f); err != nil {
-		c.Errorf("%v: %v", err, f.Url)
+		log.Errorf(c, "%v: %v", err, f.Url)
 		serveError(w, err)
 		s += "err"
 		return
@@ -229,17 +230,17 @@ func SubscribeFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 	resp, err := cl.Do(req)
 	if err != nil {
-		c.Errorf("req error: %v", err)
+		log.Errorf(c, "req error: %v", err)
 	} else if resp.StatusCode != http.StatusNoContent {
 		f.Subscribed = time.Now().Add(time.Hour * 48)
 		gn.Put(&f)
 		if resp.StatusCode != http.StatusConflict {
-			c.Errorf("resp: %v - %v", f.Url, resp.Status)
-			c.Errorf("%s", resp.Body)
+			log.Errorf(c, "resp: %v - %v", f.Url, resp.Status)
+			log.Errorf(c, "%s", resp.Body)
 		}
 		s += "resp err"
 	} else {
-		c.Infof("subscribed: %v", f.Url)
+		log.Infof(c, "subscribed: %v", f.Url)
 		s += "success"
 	}
 }
@@ -258,7 +259,7 @@ func UpdateFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 		if err == datastore.Done {
 			break
 		} else if err != nil {
-			c.Errorf("next error: %v", err.Error())
+			log.Errorf(c, "next error: %v", err.Error())
 			break
 		}
 		tc <- taskqueue.NewPOSTTask(u, url.Values{
@@ -268,7 +269,7 @@ func UpdateFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 	close(tc)
 	<-done
-	c.Infof("updating %d feeds", i)
+	log.Infof(c, "updating %d feeds", i)
 }
 
 func fetchFeed(c context.Context, origUrl, fetchUrl string) (*Feed, []*Story, error) {
@@ -365,7 +366,7 @@ func updateFeed(c context.Context, url string, feed *Feed, stories []*Story, upd
 	}
 
 	if hasUpdated && isFeedUpdated && !updateAll && !fromSub {
-		c.Infof("feed %s already updated to %v, putting", url, feed.Updated)
+		log.Infof(c, "feed %s already updated to %v, putting", url, feed.Updated)
 		f.Updated = time.Now()
 		scheduleNextUpdate(c, &f)
 		gn.Put(&f)
@@ -383,7 +384,7 @@ func updateFeed(c context.Context, url string, feed *Feed, stories []*Story, upd
 	}
 	err := gn.GetMulti(getStories)
 	if _, ok := err.(appengine.MultiError); err != nil && !ok {
-		c.Errorf("GetMulti error: %v", err)
+		log.Errorf(c, "GetMulti error: %v", err)
 		return err
 	}
 	var updateStories []*Story
@@ -418,7 +419,7 @@ func updateFeed(c context.Context, url string, feed *Feed, stories []*Story, upd
 			sc.Content = s.content
 		}
 		if _, err := gn.Put(&sc); err != nil {
-			c.Errorf("put sc err: %v", err)
+			log.Errorf(c, "put sc err: %v", err)
 			return err
 		}
 	}
@@ -439,10 +440,10 @@ func updateFeed(c context.Context, url string, feed *Feed, stories []*Story, upd
 		}
 	}
 	delay := f.NextUpdate.Sub(time.Now())
-	c.Infof("next update scheduled for %v from now", delay-delay%time.Second)
+	log.Infof(c, "next update scheduled for %v from now", delay-delay%time.Second)
 	_, err = gn.PutMulti(puts)
 	if err != nil {
-		c.Errorf("update put err: %v", err)
+		log.Errorf(c, "update put err: %v", err)
 	}
 	return err
 }
@@ -451,7 +452,7 @@ func UpdateFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(appengine.Timeout(c, time.Minute))
 	url := r.FormValue("feed")
 	if url == "" {
-		c.Errorf("empty update feed")
+		log.Errorf(c, "empty update feed")
 		return
 	}
 	c.Debugf("update feed %s", url)
@@ -466,7 +467,7 @@ func UpdateFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 		})
 	}()
 	if err := gn.Get(&f); err == datastore.ErrNoSuchEntity {
-		c.Errorf("no such entity - " + url)
+		log.Errorf(c, "no such entity - " + url)
 		s += "NSE"
 		return
 	} else if err != nil {
@@ -475,7 +476,7 @@ func UpdateFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	} else if last {
 		// noop
 	} else if time.Now().Before(f.NextUpdate) {
-		c.Errorf("feed %v already updated: %v", url, f.NextUpdate)
+		log.Errorf(c, "feed %v already updated: %v", url, f.NextUpdate)
 		s += "already updated"
 		return
 	}
@@ -532,7 +533,7 @@ func DeleteBlobs(c context.Context, w http.ResponseWriter, r *http.Request) {
 			if err == datastore.Done {
 				break
 			} else if err != nil {
-				c.Errorf("err: %v", err)
+				log.Errorf(c, "err: %v", err)
 				continue
 			}
 			bk = append(bk, appengine.BlobKey(k.StringID()))
@@ -542,10 +543,10 @@ func DeleteBlobs(c context.Context, w http.ResponseWriter, r *http.Request) {
 		}
 		go func(bk []appengine.BlobKey) {
 			something = true
-			c.Errorf("deleteing %v blobs", len(bk))
+			log.Errorf(c, "deleteing %v blobs", len(bk))
 			err := blobstore.DeleteMulti(ctx, bk)
 			if err != nil {
-				c.Errorf("blobstore delete err: %v", err)
+				log.Errorf(c, "blobstore delete err: %v", err)
 			}
 			wg.Done()
 		}(bk)
@@ -574,7 +575,7 @@ func DeleteOldFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 			done = true
 			break
 		} else if err != nil {
-			c.Errorf("err: %v", err)
+			log.Errorf(c, "err: %v", err)
 			continue
 		}
 		values := make(url.Values)
@@ -582,9 +583,9 @@ func DeleteOldFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 		tasks = append(tasks, taskqueue.NewPOSTTask("/tasks/delete-old-feed", values))
 	}
 	if len(tasks) > 0 {
-		c.Errorf("deleting %v feeds", len(tasks))
+		log.Errorf(c, "deleting %v feeds", len(tasks))
 		if _, err := taskqueue.AddMulti(c, tasks, ""); err != nil {
-			c.Errorf("err: %v", err)
+			log.Errorf(c, "err: %v", err)
 		}
 	}
 	if !done {
@@ -593,7 +594,7 @@ func DeleteOldFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 			values.Add("c", cur.String())
 			taskqueue.Add(c, taskqueue.NewPOSTTask("/tasks/delete-old-feeds", values), "")
 		} else {
-			c.Errorf("err: %v", err)
+			log.Errorf(c, "err: %v", err)
 		}
 	}
 }
@@ -623,7 +624,7 @@ func DeleteOldFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	keys = append(keys, sckeys...)
-	c.Infof("delete: %v - %v", feed.Url, len(keys))
+	log.Infof(c, "delete: %v - %v", feed.Url, len(keys))
 	feed.NextUpdate = timeMax.Add(time.Hour)
 	if _, err := g.Put(&feed); err != nil {
 		c.Criticalf("put err: %v", err)
