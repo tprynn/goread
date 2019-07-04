@@ -29,7 +29,7 @@ import (
 
 	// "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler"
 	
-	"github.com/gorilla/mux"
+	"github.com/tprynn/goread/_third_party/github.com/gorilla/mux"
 	"github.com/mjibson/goon"
 
 	"google.golang.org/appengine"
@@ -128,7 +128,7 @@ func RegisterHandlers(r *mux.Router) {
 	router.Handle("/test/atom.xml", mpg.NewHandler(TestAtom)).Name("test-atom")
 }
 
-func wrap(f func(mpg.Context, http.ResponseWriter, *http.Request)) http.Handler {
+func wrap(f func(context.Context, http.ResponseWriter, *http.Request)) http.Handler {
 	handler := mpg.NewHandler(f)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isDevServer {
@@ -143,7 +143,7 @@ func main() {
 	appengine.Main();
 }
 
-func Main(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func Main(c context.Context, w http.ResponseWriter, r *http.Request) {
 	ua := r.Header.Get("User-Agent")
 	mobile := strings.Contains(ua, "Mobi")
 	if desktop, _ := r.Cookie("goread-desktop"); desktop != nil {
@@ -164,7 +164,7 @@ func Main(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func addFeed(c mpg.Context, userid string, outline *OpmlOutline) error {
+func addFeed(c context.Context, userid string, outline *OpmlOutline) error {
 	gn := goon.FromContext(c)
 	o := outline.Outline[0]
 	c.Infof("adding feed %v to user %s", o.XmlUrl, userid)

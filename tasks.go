@@ -19,6 +19,7 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
@@ -42,7 +43,7 @@ import (
 	"google.golang.org/appengine/urlfetch"
 )
 
-func ImportOpmlTask(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func ImportOpmlTask(c context.Context, w http.ResponseWriter, r *http.Request) {
 	c.Infof("top of ImportOpmlTask")
 
 	gn := goon.FromContext(c)
@@ -141,7 +142,7 @@ func ImportOpmlTask(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 
 const IMPORT_LIMIT = 10
 
-func SubscribeCallback(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func SubscribeCallback(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(c)
 	furl := r.FormValue("feed")
 	b, _ := base64.URLEncoding.DecodeString(furl)
@@ -189,7 +190,7 @@ func SubscribeCallback(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 }
 
 // Task used to subscribe a feed to push.
-func SubscribeFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func SubscribeFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	gn := goon.FromContext(c)
 	f := Feed{Url: r.FormValue("feed")}
@@ -243,7 +244,7 @@ func SubscribeFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UpdateFeeds(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func UpdateFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	q := datastore.NewQuery("F").KeysOnly().Filter("n <=", time.Now())
 	q = q.Limit(10 * 60 * 2) // 10/s queue, 2 min cron
 	it := q.Run(appengine.Timeout(c, time.Minute))
@@ -270,7 +271,7 @@ func UpdateFeeds(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	c.Infof("updating %d feeds", i)
 }
 
-func fetchFeed(c mpg.Context, origUrl, fetchUrl string) (*Feed, []*Story, error) {
+func fetchFeed(c context.Context, origUrl, fetchUrl string) (*Feed, []*Story, error) {
 	u, err := url.Parse(fetchUrl)
 	if err != nil {
 		return nil, nil, err
@@ -333,7 +334,7 @@ func fetchFeed(c mpg.Context, origUrl, fetchUrl string) (*Feed, []*Story, error)
 	}
 }
 
-func updateFeed(c mpg.Context, url string, feed *Feed, stories []*Story, updateAll, fromSub, updateLast bool) error {
+func updateFeed(c context.Context, url string, feed *Feed, stories []*Story, updateAll, fromSub, updateLast bool) error {
 	gn := goon.FromContext(c)
 	f := Feed{Url: url}
 	if err := gn.Get(&f); err != nil {
@@ -446,7 +447,7 @@ func updateFeed(c mpg.Context, url string, feed *Feed, stories []*Story, updateA
 	return err
 }
 
-func UpdateFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func UpdateFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(appengine.Timeout(c, time.Minute))
 	url := r.FormValue("feed")
 	if url == "" {
@@ -506,7 +507,7 @@ func UpdateFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	f.Subscribe(c)
 }
 
-func UpdateFeedLast(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func UpdateFeedLast(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(c)
 	url := r.FormValue("feed")
 	c.Debugf("update feed last %s", url)
@@ -518,7 +519,7 @@ func UpdateFeedLast(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	gn.Put(&f)
 }
 
-func DeleteBlobs(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func DeleteBlobs(c context.Context, w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.Timeout(c, time.Minute)
 	q := datastore.NewQuery("__BlobInfo__").KeysOnly()
 	it := q.Run(ctx)
@@ -556,7 +557,7 @@ func DeleteBlobs(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func DeleteOldFeeds(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func DeleteOldFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.Timeout(c, time.Minute)
 	gn := goon.FromContext(c)
 	q := datastore.NewQuery(gn.Kind(&Feed{})).Filter("n=", timeMax).KeysOnly()
@@ -597,7 +598,7 @@ func DeleteOldFeeds(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func DeleteOldFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func DeleteOldFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.Timeout(c, time.Minute)
 	g := goon.FromContext(ctx)
 	oldDate := time.Now().Add(-time.Hour * 24 * 90)

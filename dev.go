@@ -17,6 +17,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -28,7 +29,7 @@ import (
 	"google.golang.org/appengine/user"
 )
 
-func ClearRead(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func ClearRead(c context.Context, w http.ResponseWriter, r *http.Request) {
 	if !isDevServer {
 		return
 	}
@@ -48,7 +49,7 @@ func ClearRead(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func ClearFeeds(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func ClearFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	if !isDevServer {
 		return
 	}
@@ -104,7 +105,7 @@ func ClearFeeds(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("%s?url=http://localhost:8080%s", routeUrl("add-subscription"), routeUrl("test-atom")), http.StatusFound)
 }
 
-func TestAtom(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func TestAtom(c context.Context, w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(testAtom))
 }
 

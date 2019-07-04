@@ -17,6 +17,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -75,7 +76,7 @@ type StripeError struct {
 	} `json:"error"`
 }
 
-func Charge(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func Charge(c context.Context, w http.ResponseWriter, r *http.Request) {
 	cu := user.Current(c)
 	gn := goon.FromContext(c)
 	u := User{Id: cu.ID}
@@ -124,7 +125,7 @@ func Charge(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func setCharge(c mpg.Context, r *http.Response) (*UserCharge, error) {
+func setCharge(c context.Context, r *http.Response) (*UserCharge, error) {
 	var sc StripeCustomer
 	defer r.Body.Close()
 	b, err := ioutil.ReadAll(r.Body)
@@ -161,7 +162,7 @@ func setCharge(c mpg.Context, r *http.Response) (*UserCharge, error) {
 	return &uc, nil
 }
 
-func Account(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func Account(c context.Context, w http.ResponseWriter, r *http.Request) {
 	cu := user.Current(c)
 	gn := goon.FromContext(c)
 	u := User{Id: cu.ID}
@@ -183,7 +184,7 @@ func Account(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Uncheckout(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func Uncheckout(c context.Context, w http.ResponseWriter, r *http.Request) {
 	uc, err := doUncheckout(c)
 	if err != nil {
 		serveError(w, err)
@@ -193,7 +194,7 @@ func Uncheckout(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-func doUncheckout(c mpg.Context) (*UserCharge, error) {
+func doUncheckout(c context.Context) (*UserCharge, error) {
 	cu := user.Current(c)
 	gn := goon.FromContext(c)
 	u := User{Id: cu.ID}
@@ -230,7 +231,7 @@ func doUncheckout(c mpg.Context) (*UserCharge, error) {
 	return &uc, nil
 }
 
-func stripe(c mpg.Context, method, urlStr, body string) (*http.Response, error) {
+func stripe(c context.Context, method, urlStr, body string) (*http.Response, error) {
 	cl := &http.Client{
 		Transport: &urlfetch.Transport{
 			Context:  c,

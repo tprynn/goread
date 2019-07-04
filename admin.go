@@ -17,6 +17,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -31,7 +32,7 @@ import (
 	"github.com/mjibson/goon"
 )
 
-func AllFeedsOpml(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func AllFeedsOpml(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(c)
 	q := datastore.NewQuery(gn.Kind(&Feed{})).KeysOnly()
 	keys, _ := gn.GetAll(q, nil)
@@ -62,14 +63,14 @@ func feedsToOpml(feeds []*Feed) []byte {
 	return b
 }
 
-func AllFeeds(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func AllFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(c)
 	q := datastore.NewQuery(gn.Kind(&Feed{})).KeysOnly()
 	keys, _ := gn.GetAll(q, nil)
 	templates.ExecuteTemplate(w, "admin-all-feeds.html", keys)
 }
 
-func AdminFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func AdminFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(c)
 	f := Feed{Url: r.FormValue("f")}
 	if err := gn.Get(&f); err != nil {
@@ -117,7 +118,7 @@ func AdminFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func AdminUpdateFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func AdminUpdateFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	url := r.FormValue("f")
 	if feed, stories, err := fetchFeed(c, url, url); err == nil {
 		updateFeed(c, url, feed, stories, true, false, false)
@@ -127,7 +128,7 @@ func AdminUpdateFeed(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AdminSubHub(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func AdminSubHub(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(c)
 	f := Feed{Url: r.FormValue("f")}
 	if err := gn.Get(&f); err != nil {
@@ -139,7 +140,7 @@ func AdminSubHub(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "subscribed")
 }
 
-func AdminDateFormats(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func AdminDateFormats(c context.Context, w http.ResponseWriter, r *http.Request) {
 	type df struct {
 		URL, Format string
 	}
@@ -158,7 +159,7 @@ func AdminDateFormats(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AdminStats(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func AdminStats(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(c)
 	uc, _ := datastore.NewQuery(gn.Kind(&User{})).Count(c)
 	templates.ExecuteTemplate(w, "admin-stats.html", struct {
@@ -168,7 +169,7 @@ func AdminStats(c mpg.Context, w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func AdminUser(c mpg.Context, w http.ResponseWriter, r *http.Request) {
+func AdminUser(c context.Context, w http.ResponseWriter, r *http.Request) {
 	gn := goon.FromContext(c)
 	q := datastore.NewQuery(gn.Kind(&User{})).Limit(1)
 	q = q.Filter("e =", r.FormValue("u"))

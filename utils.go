@@ -18,6 +18,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/xml"
 	"fmt"
 	"html"
@@ -112,7 +113,7 @@ func init() {
 	}
 }
 
-func includes(c mpg.Context, w http.ResponseWriter, r *http.Request) *Includes {
+func includes(c context.Context, w http.ResponseWriter, r *http.Request) *Includes {
 	i := &Includes{
 		Angular:             Angular,
 		BootstrapCss:        BootstrapCss,
@@ -817,7 +818,7 @@ func scheduleNextUpdate(c appengine.Context, f *Feed) {
 	f.NextUpdate = time.Now().Add(pause)
 }
 
-func taskSender(c mpg.Context, queue string, tc chan *taskqueue.Task, done chan bool) {
+func taskSender(c context.Context, queue string, tc chan *taskqueue.Task, done chan bool) {
 	const taskLimit = 100
 	tasks := make([]*taskqueue.Task, 0, taskLimit)
 	send := func() {

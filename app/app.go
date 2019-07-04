@@ -3,7 +3,7 @@ package app
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/tprynn/goread/_third_party/github.com/gorilla/mux"
 
 	app "github.com/tprynn/goread"
 )
