@@ -51,6 +51,11 @@ import (
 	// "google.golang.org/appengine/log"
 )
 
+func Step(c context.Context, message string, f func(c context.Context)) {
+	log.Infof(c, message);
+	f(c);
+}
+
 func LoginGoogle(c context.Context, w http.ResponseWriter, r *http.Request) {
 	if cu := user.Current(c); cu != nil {
 		gn := goon.FromContext(c)
@@ -270,14 +275,14 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 	read := make(Read)
 	var uf Opml
-	c.Step("unmarshal user data", func(c context.Context) {
+	Step(c, "unmarshal user data", func(c context.Context) {
 		gob.NewDecoder(bytes.NewReader(ud.Read)).Decode(&read)
 		json.Unmarshal(ud.Opml, &uf)
 	})
 	var feeds []*Feed
 	opmlMap := make(map[string]*OpmlOutline)
 	var merr error
-	c.Step("fetch feeds", func(c context.Context) {
+	Step(c, "fetch feeds", func(c context.Context) {
 		ct, cancel := context.WithTimeout(c, time.Minute);
 		defer cancel()
 		gn := goon.FromContext(ct)
@@ -306,14 +311,14 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	numStories := 0
 	var stars []string
 
-	c.Step(fmt.Sprintf("feed unreads: %v", u.Read), func(c context.Context) {
+	Step(c, fmt.Sprintf("feed unreads: %v", u.Read), func(c context.Context) {
 		queue := make(chan *Feed)
 		tc := make(chan *taskqueue.Task)
 		done := make(chan bool)
 		wg := sync.WaitGroup{}
 		feedProc := func() {
 			for f := range queue {
-				c.Step(f.Title, func(c context.Context) {
+				Step(c, f.Title, func(c context.Context) {
 					defer wg.Done()
 					var stories []*Story
 					ct, cancel := context.WithTimeout(c, time.Minute);
@@ -376,7 +381,7 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 			queue <- f
 		}
 		close(queue)
-		c.Step("stars", func(c context.Context) {
+		Step(c, "stars", func(c context.Context) {
 			gn := goon.FromContext(c)
 			q := datastore.NewQuery(gn.Kind(&UserStar{})).
 				Ancestor(ud.Parent).
@@ -396,7 +401,7 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 		<-done
 	})
 	if numStories > 0 {
-		c.Step("numStories", func(c context.Context) {
+		Step(c, "numStories", func(c context.Context) {
 			stories := make([]*Story, 0, numStories)
 			for _, v := range fl {
 				stories = append(stories, v...)
@@ -420,7 +425,7 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	if fixRead {
-		c.Step("fix read", func(c context.Context) {
+		Step(c, "fix read", func(c context.Context) {
 			nread := make(Read)
 			for k, v := range fl {
 				for _, s := range v {
@@ -490,7 +495,7 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	}
 	l.Text += fmt.Sprintf(", len opml %v", len(ud.Opml))
 	gn.Put(l)
-	c.Step("json marshal", func(c context.Context) {
+	Step(c, "json marshal", func(c context.Context) {
 		gn := goon.FromContext(c)
 		o := struct {
 			Opml           []*OpmlOutline
@@ -779,7 +784,7 @@ func GetFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	} else {
 		// grab the stars list on the first run
 		wg.Add(1)
-		go c.Step("stars", func(c context.Context) {
+		go Step(c, "stars", func(c context.Context) {
 			gn := goon.FromContext(c)
 			usk := starKey(c, f.Url, "")
 			q := datastore.NewQuery(gn.Kind(&UserStar{})).Ancestor(gn.Key(usk).Parent()).KeysOnly()
