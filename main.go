@@ -69,19 +69,19 @@ func init() {
 
 func RegisterHandlers(r *mux.Router) {
 	router = r
-	router.Handle("/", mpg.NewHandler(Main)).Name("main")
-	router.Handle("/login/google", mpg.NewHandler(LoginGoogle)).Name("login-google")
-	router.Handle("/login/redirect", mpg.NewHandler(LoginRedirect))
-	router.Handle("/logout", mpg.NewHandler(Logout)).Name("logout")
-	router.Handle("/push", mpg.NewHandler(SubscribeCallback)).Name("subscribe-callback")
-	router.Handle("/tasks/import-opml", mpg.NewHandler(ImportOpmlTask)).Name("import-opml-task")
-	router.Handle("/tasks/subscribe-feed", mpg.NewHandler(SubscribeFeed)).Name("subscribe-feed")
-	router.Handle("/tasks/update-feed-last", mpg.NewHandler(UpdateFeedLast)).Name("update-feed-last")
-	router.Handle("/tasks/update-feed-manual", mpg.NewHandler(UpdateFeed)).Name("update-feed-manual")
-	router.Handle("/tasks/update-feed", mpg.NewHandler(UpdateFeed)).Name("update-feed")
-	router.Handle("/tasks/update-feeds", mpg.NewHandler(UpdateFeeds)).Name("update-feeds")
-	router.Handle("/tasks/delete-old-feeds", mpg.NewHandler(DeleteOldFeeds)).Name("delete-old-feeds")
-	router.Handle("/tasks/delete-old-feed", mpg.NewHandler(DeleteOldFeed)).Name("delete-old-feed")
+	router.Handle("/", wrap(Main)).Name("main")
+	router.Handle("/login/google", wrap(LoginGoogle)).Name("login-google")
+	router.Handle("/login/redirect", wrap(LoginRedirect))
+	router.Handle("/logout", wrap(Logout)).Name("logout")
+	router.Handle("/push", wrap(SubscribeCallback)).Name("subscribe-callback")
+	router.Handle("/tasks/import-opml", wrap(ImportOpmlTask)).Name("import-opml-task")
+	router.Handle("/tasks/subscribe-feed", wrap(SubscribeFeed)).Name("subscribe-feed")
+	router.Handle("/tasks/update-feed-last", wrap(UpdateFeedLast)).Name("update-feed-last")
+	router.Handle("/tasks/update-feed-manual", wrap(UpdateFeed)).Name("update-feed-manual")
+	router.Handle("/tasks/update-feed", wrap(UpdateFeed)).Name("update-feed")
+	router.Handle("/tasks/update-feeds", wrap(UpdateFeeds)).Name("update-feeds")
+	router.Handle("/tasks/delete-old-feeds", wrap(DeleteOldFeeds)).Name("delete-old-feeds")
+	router.Handle("/tasks/delete-old-feed", wrap(DeleteOldFeed)).Name("delete-old-feed")
 
 	router.Handle("/user/add-subscription", wrap(AddSubscription)).Name("add-subscription")
 	router.Handle("/user/delete-account", wrap(DeleteAccount)).Name("delete-account")
@@ -99,19 +99,19 @@ func RegisterHandlers(r *mux.Router) {
 	router.Handle("/user/set-star", wrap(SetStar)).Name("set-star")
 	router.Handle("/user/upload-opml", wrap(UploadOpml)).Name("upload-opml")
 
-	router.Handle("/admin/all-feeds", mpg.NewHandler(AllFeeds)).Name("all-feeds")
-	router.Handle("/admin/all-feeds-opml", mpg.NewHandler(AllFeedsOpml)).Name("all-feeds-opml")
-	router.Handle("/admin/user", mpg.NewHandler(AdminUser)).Name("admin-user")
-	router.Handle("/date-formats", mpg.NewHandler(AdminDateFormats)).Name("admin-date-formats")
-	router.Handle("/admin/feed", mpg.NewHandler(AdminFeed)).Name("admin-feed")
-	router.Handle("/admin/subhub", mpg.NewHandler(AdminSubHub)).Name("admin-subhub-feed")
-	router.Handle("/admin/stats", mpg.NewHandler(AdminStats)).Name("admin-stats")
-	router.Handle("/admin/update-feed", mpg.NewHandler(AdminUpdateFeed)).Name("admin-update-feed")
-	router.Handle("/user/charge", mpg.NewHandler(Charge)).Name("charge")
-	router.Handle("/user/account", mpg.NewHandler(Account)).Name("account")
-	router.Handle("/user/uncheckout", mpg.NewHandler(Uncheckout)).Name("uncheckout")
+	router.Handle("/admin/all-feeds", wrap(AllFeeds)).Name("all-feeds")
+	router.Handle("/admin/all-feeds-opml", wrap(AllFeedsOpml)).Name("all-feeds-opml")
+	router.Handle("/admin/user", wrap(AdminUser)).Name("admin-user")
+	router.Handle("/date-formats", wrap(AdminDateFormats)).Name("admin-date-formats")
+	router.Handle("/admin/feed", wrap(AdminFeed)).Name("admin-feed")
+	router.Handle("/admin/subhub", wrap(AdminSubHub)).Name("admin-subhub-feed")
+	router.Handle("/admin/stats", wrap(AdminStats)).Name("admin-stats")
+	router.Handle("/admin/update-feed", wrap(AdminUpdateFeed)).Name("admin-update-feed")
+	router.Handle("/user/charge", wrap(Charge)).Name("charge")
+	router.Handle("/user/account", wrap(Account)).Name("account")
+	router.Handle("/user/uncheckout", wrap(Uncheckout)).Name("uncheckout")
 
-	//router.Handle("/tasks/delete-blobs", mpg.NewHandler(DeleteBlobs)).Name("delete-blobs")
+	//router.Handle("/tasks/delete-blobs", wrap(DeleteBlobs)).Name("delete-blobs")
 
 	if len(PUBSUBHUBBUB_HOST) > 0 {
 		u := url.URL{
@@ -126,19 +126,21 @@ func RegisterHandlers(r *mux.Router) {
 	if !isDevServer {
 		return
 	}
-	router.Handle("/user/clear-feeds", mpg.NewHandler(ClearFeeds)).Name("clear-feeds")
-	router.Handle("/user/clear-read", mpg.NewHandler(ClearRead)).Name("clear-read")
-	router.Handle("/test/atom.xml", mpg.NewHandler(TestAtom)).Name("test-atom")
+	router.Handle("/user/clear-feeds", wrap(ClearFeeds)).Name("clear-feeds")
+	router.Handle("/user/clear-read", wrap(ClearRead)).Name("clear-read")
+	router.Handle("/test/atom.xml", wrap(TestAtom)).Name("test-atom")
 }
 
 func wrap(f func(context.Context, http.ResponseWriter, *http.Request)) http.Handler {
-	handler := mpg.NewHandler(f)
+	// handler := wrap(f)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isDevServer {
 			w.Header().Add("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 			w.Header().Add("Access-Control-Allow-Credentials", "true")
 		}
-		handler.ServeHTTP(w, r)
+		// handler.ServeHTTP(w, r)
+		c := appengine.NewContext(r);
+		f(c, w, r);
 	})
 }
 
