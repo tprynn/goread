@@ -18,18 +18,20 @@ package appstats
 
 import (
 	"bytes"
+	"context"
 	"encoding/gob"
 	"fmt"
 	"math/rand"
 	"net/http"
 	"net/url"
-	"runtime/debug"
+	// "runtime/debug"
 	"time"
 
-	"appengine"
-	"appengine/memcache"
-	"appengine/user"
-	"appengine_internal"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/log"
+	"google.golang.org/appengine/memcache"
+	"google.golang.org/appengine/user"
+	// "google.golang.org/appengine_internal"
 )
 
 var (
@@ -69,51 +71,51 @@ func DefaultShouldRecord(r *http.Request) bool {
 	return rand.Float64() < RecordFraction
 }
 
-// Context is a timing-aware appengine.Context.
-type Context struct {
-	appengine.Context
+// Context is a timing-aware context.Context.
+type AppStatsContext struct {
+	context.Context
 	header http.Header
 	stats  *requestStats
 }
 
-// Call times an appengine.Context Call. Internal use only.
-func (c Context) Call(service, method string, in, out appengine_internal.ProtoMessage, opts *appengine_internal.CallOptions) error {
-	c.stats.wg.Add(1)
-	defer c.stats.wg.Done()
+// Call times an context.Context Call. Internal use only.
+// func (c Context) Call(service, method string, in, out appengine_internal.ProtoMessage, opts *appengine_internal.CallOptions) error {
+// 	c.stats.wg.Add(1)
+// 	defer c.stats.wg.Done()
 
-	if service == "__go__" {
-		return c.Context.Call(service, method, in, out, opts)
-	}
+// 	if service == "__go__" {
+// 		return c.Context.Call(service, method, in, out, opts)
+// 	}
 
-	stat := rpcStat{
-		Service:   service,
-		Method:    method,
-		Start:     time.Now(),
-		Offset:    time.Since(c.stats.Start),
-		StackData: string(debug.Stack()),
-	}
-	err := c.Context.Call(service, method, in, out, opts)
-	stat.Duration = time.Since(stat.Start)
-	stat.In = in.String()
-	stat.Out = out.String()
-	stat.Cost = getCost(out)
+// 	stat := rpcStat{
+// 		Service:   service,
+// 		Method:    method,
+// 		Start:     time.Now(),
+// 		Offset:    time.Since(c.stats.Start),
+// 		StackData: string(debug.Stack()),
+// 	}
+// 	err := c.Context.Call(service, method, in, out, opts)
+// 	stat.Duration = time.Since(stat.Start)
+// 	stat.In = in.String()
+// 	stat.Out = out.String()
+// 	stat.Cost = getCost(out)
 
-	if len(stat.In) > ProtoMaxBytes {
-		stat.In = stat.In[:ProtoMaxBytes] + "..."
-	}
-	if len(stat.Out) > ProtoMaxBytes {
-		stat.Out = stat.Out[:ProtoMaxBytes] + "..."
-	}
+// 	if len(stat.In) > ProtoMaxBytes {
+// 		stat.In = stat.In[:ProtoMaxBytes] + "..."
+// 	}
+// 	if len(stat.Out) > ProtoMaxBytes {
+// 		stat.Out = stat.Out[:ProtoMaxBytes] + "..."
+// 	}
 
-	c.stats.lock.Lock()
-	c.stats.RPCStats = append(c.stats.RPCStats, stat)
-	c.stats.Cost += stat.Cost
-	c.stats.lock.Unlock()
-	return err
-}
+// 	c.stats.lock.Lock()
+// 	c.stats.RPCStats = append(c.stats.RPCStats, stat)
+// 	c.stats.Cost += stat.Cost
+// 	c.stats.lock.Unlock()
+// 	return err
+// }
 
 // NewContext creates a new timing-aware context from req.
-func NewContext(req *http.Request) Context {
+func NewContext(req *http.Request) AppStatsContext {
 	c := appengine.NewContext(req)
 	var uname string
 	var admin bool
@@ -121,7 +123,7 @@ func NewContext(req *http.Request) Context {
 		uname = u.String()
 		admin = u.Admin
 	}
-	return Context{
+	return AppStatsContext{
 		Context: c,
 		header:  req.Header,
 		stats: &requestStats{
@@ -137,14 +139,14 @@ func NewContext(req *http.Request) Context {
 
 // WithContext enables profiling of functions without a corresponding request,
 // as in the appengine/delay package. method and path may be empty.
-func WithContext(context appengine.Context, method, path string, f func(Context)) {
+func WithContext(context context.Context, method, path string, f func(AppStatsContext)) {
 	var uname string
 	var admin bool
 	if u := user.Current(context); u != nil {
 		uname = u.String()
 		admin = u.Admin
 	}
-	c := Context{
+	c := AppStatsContext{
 		Context: context,
 		stats: &requestStats{
 			User:   uname,
@@ -160,7 +162,7 @@ func WithContext(context appengine.Context, method, path string, f func(Context)
 
 const bufMaxLen = 1000000
 
-func (c Context) save() {
+func (c AppStatsContext) save() {
 	c.stats.wg.Wait()
 	c.stats.Duration = time.Since(c.stats.Start)
 
@@ -214,7 +216,7 @@ func (c Context) save() {
 }
 
 // URL returns the appstats URL for the current request.
-func (c Context) URL() string {
+func (c AppStatsContext) URL() string {
 	u := url.URL{
 		Path:     detailsURL,
 		RawQuery: fmt.Sprintf("time=%v", c.stats.Start.Nanosecond()),
@@ -222,12 +224,12 @@ func (c Context) URL() string {
 	return u.String()
 }
 
-func (c Context) storeContext() appengine.Context {
+func (c AppStatsContext) storeContext() context.Context {
 	nc, _ := appengine.Namespace(c.Context, Namespace)
 	return nc
 }
 
-func context(r *http.Request) appengine.Context {
+func context(r *http.Request) context.Context {
 	c := appengine.NewContext(r)
 	nc, _ := appengine.Namespace(c, Namespace)
 	return nc
@@ -235,18 +237,18 @@ func context(r *http.Request) appengine.Context {
 
 // handler is an http.Handler that records RPC statistics.
 type handler struct {
-	f func(appengine.Context, http.ResponseWriter, *http.Request)
+	f func(context.Context, http.ResponseWriter, *http.Request)
 }
 
 // NewHandler returns a new Handler that will execute f.
-func NewHandler(f func(appengine.Context, http.ResponseWriter, *http.Request)) http.Handler {
+func NewHandler(f func(context.Context, http.ResponseWriter, *http.Request)) http.Handler {
 	return handler{
 		f: f,
 	}
 }
 
 // NewHandlerFunc returns a new HandlerFunc that will execute f.
-func NewHandlerFunc(f func(appengine.Context, http.ResponseWriter, *http.Request)) http.HandlerFunc {
+func NewHandlerFunc(f func(context.Context, http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		h := handler{
 			f: f,
@@ -258,7 +260,7 @@ func NewHandlerFunc(f func(appengine.Context, http.ResponseWriter, *http.Request
 type responseWriter struct {
 	http.ResponseWriter
 
-	c Context
+	c AppStatsContext
 }
 
 func (r responseWriter) Write(b []byte) (int, error) {

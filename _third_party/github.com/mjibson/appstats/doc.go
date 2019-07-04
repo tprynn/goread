@@ -33,7 +33,7 @@ This is a small example using this package.
 	import (
 		"net/http"
 
-		"appengine"
+		"google.golang.org/appengine"
 
 		"github.com/mjibson/appstats"
 	)

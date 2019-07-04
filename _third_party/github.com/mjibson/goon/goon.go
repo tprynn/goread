@@ -26,9 +26,9 @@ import (
 	"sync"
 	"time"
 
-	"appengine"
-	"appengine/datastore"
-	"appengine/memcache"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/memcache"
 )
 
 var (

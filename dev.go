@@ -14,18 +14,18 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package goapp
+package main
 
 import (
 	"fmt"
 	"net/http"
 	"time"
 
-	mpg "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler_gae"
-	"github.com/tprynn/goread/_third_party/github.com/mjibson/goon"
+	
+	"github.com/mjibson/goon"
 
-	"appengine/datastore"
-	"appengine/user"
+	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/user"
 )
 
 func ClearRead(c mpg.Context, w http.ResponseWriter, r *http.Request) {

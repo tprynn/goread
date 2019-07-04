@@ -28,9 +28,9 @@ import (
 	"strings"
 	"time"
 
-	"appengine"
-	"appengine/memcache"
-	"appengine/user"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/memcache"
+	"google.golang.org/appengine/user"
 )
 
 var templates *template.Template

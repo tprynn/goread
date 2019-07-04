@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package goapp
+package main
 
 import (
 	"bytes"
@@ -31,8 +31,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	mpg "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler_gae"
-	"github.com/tprynn/goread/_third_party/github.com/mjibson/goon"
+	
+	"github.com/mjibson/goon"
 	"github.com/tprynn/goread/_third_party/golang.org/x/net/html/charset"
 	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding"
 	"github.com/tprynn/goread/_third_party/golang.org/x/text/encoding/charmap"
@@ -42,11 +42,11 @@ import (
 	"github.com/tprynn/goread/rss"
 	"github.com/tprynn/goread/sanitizer"
 
-	"appengine"
-	"appengine/memcache"
-	"appengine/taskqueue"
-	"appengine/urlfetch"
-	"appengine/user"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/memcache"
+	"google.golang.org/appengine/taskqueue"
+	"google.golang.org/appengine/urlfetch"
+	"google.golang.org/appengine/user"
 )
 
 func serveError(w http.ResponseWriter, err error) {
@@ -793,10 +793,10 @@ func scheduleNextUpdate(c appengine.Context, f *Feed) {
 
 	// if it has been much longer than expected since the last update,
 	// gradually reduce the frequency of checks
-	since := time.Since(f.Date)
-	if since > pause*UpdateLongFactor {
-		pause = time.Duration(float64(since) / UpdateLongFactor)
-	}
+	// since := time.Since(f.Date)
+	// if since > pause*UpdateLongFactor {
+	// 	pause = time.Duration(float64(since) / UpdateLongFactor)
+	// }
 
 	// enforce some limits
 	if pause < UpdateMin {

@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package goapp
+package main
 
 import (
 	"encoding/json"
@@ -27,13 +27,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler"
-	mpg "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler_gae"
-	"github.com/tprynn/goread/_third_party/github.com/gorilla/mux"
-	"github.com/tprynn/goread/_third_party/github.com/mjibson/goon"
+	// "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler"
+	
+	"github.com/gorilla/mux"
+	"github.com/mjibson/goon"
 
-	"appengine"
-	"appengine/datastore"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
 )
 
 var (
@@ -60,8 +60,8 @@ func init() {
 		log.Fatal(err)
 	}
 
-	miniprofiler.ToggleShortcut = "Alt+C"
-	miniprofiler.Position = "bottomleft"
+	// miniprofiler.ToggleShortcut = "Alt+C"
+	// miniprofiler.Position = "bottomleft"
 }
 
 func RegisterHandlers(r *mux.Router) {
@@ -137,6 +137,10 @@ func wrap(f func(mpg.Context, http.ResponseWriter, *http.Request)) http.Handler 
 		}
 		handler.ServeHTTP(w, r)
 	})
+}
+
+func main() {
+	appengine.Main();
 }
 
 func Main(c mpg.Context, w http.ResponseWriter, r *http.Request) {

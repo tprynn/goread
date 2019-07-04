@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package goapp
+package main
 
 import (
 	"encoding/json"
@@ -25,12 +25,12 @@ import (
 	"strings"
 	"time"
 
-	mpg "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler_gae"
-	"github.com/tprynn/goread/_third_party/github.com/mjibson/goon"
+	
+	"github.com/mjibson/goon"
 
-	"appengine/datastore"
-	"appengine/urlfetch"
-	"appengine/user"
+	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/urlfetch"
+	"google.golang.org/appengine/user"
 )
 
 type Plan struct {

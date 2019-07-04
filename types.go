@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package goapp
+package main
 
 import (
 	"bytes"
@@ -25,12 +25,12 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/tprynn/goread/_third_party/github.com/mjibson/goon"
+	"github.com/mjibson/goon"
 
-	"appengine"
-	"appengine/datastore"
-	"appengine/taskqueue"
-	"appengine/user"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/taskqueue"
+	"google.golang.org/appengine/user"
 )
 
 type User struct {

@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package goapp
+package main
 
 import (
 	"bytes"
@@ -32,14 +32,14 @@ import (
 	"time"
 
 	"github.com/tprynn/goread/_third_party/code.google.com/p/go-charset/charset"
-	mpg "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler_gae"
-	"github.com/tprynn/goread/_third_party/github.com/mjibson/goon"
+	
+	"github.com/mjibson/goon"
 
-	"appengine"
-	"appengine/blobstore"
-	"appengine/datastore"
-	"appengine/taskqueue"
-	"appengine/urlfetch"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/blobstore"
+	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/taskqueue"
+	"google.golang.org/appengine/urlfetch"
 )
 
 func ImportOpmlTask(c mpg.Context, w http.ResponseWriter, r *http.Request) {

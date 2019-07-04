@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"appengine"
-	"appengine/memcache"
-	"appengine/user"
-	"appengine_internal"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/memcache"
+	"google.golang.org/appengine/user"
+	// "google.golang.org/appengine_internal"
 	"github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler"
 	"github.com/tprynn/goread/_third_party/github.com/mjibson/appstats"
 )
@@ -84,16 +84,16 @@ type Context struct {
 	miniprofiler.Timer
 }
 
-func (c Context) Call(service, method string, in, out appengine_internal.ProtoMessage, opts *appengine_internal.CallOptions) (err error) {
-	if c.Timer != nil && service != "__go__" {
-		c.StepCustomTiming(service, method, fmt.Sprintf("%v\n\n%v", method, in.String()), func() {
-			err = c.Context.Call(service, method, in, out, opts)
-		})
-	} else {
-		err = c.Context.Call(service, method, in, out, opts)
-	}
-	return
-}
+// func (c Context) Call(service, method string, in, out appengine_internal.ProtoMessage, opts *appengine_internal.CallOptions) (err error) {
+// 	if c.Timer != nil && service != "__go__" {
+// 		c.StepCustomTiming(service, method, fmt.Sprintf("%v\n\n%v", method, in.String()), func() {
+// 			err = c.Context.Call(service, method, in, out, opts)
+// 		})
+// 	} else {
+// 		err = c.Context.Call(service, method, in, out, opts)
+// 	}
+// 	return
+// }
 
 func (c Context) Step(name string, f func(Context)) {
 	if c.Timer != nil {

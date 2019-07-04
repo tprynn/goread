@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package goapp
+package main
 
 import (
 	"archive/zip"
@@ -35,15 +35,15 @@ import (
 
 	"github.com/tprynn/goread/_third_party/code.google.com/p/go-charset/charset"
 	_ "github.com/tprynn/goread/_third_party/code.google.com/p/go-charset/data"
-	mpg "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler_gae"
-	"github.com/tprynn/goread/_third_party/github.com/mjibson/goon"
+	
+	"github.com/mjibson/goon"
 	"github.com/tprynn/goread/sanitizer"
 
-	"appengine"
-	"appengine/blobstore"
-	"appengine/datastore"
-	"appengine/taskqueue"
-	"appengine/user"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/blobstore"
+	"google.golang.org/appengine/datastore"
+	"google.golang.org/appengine/taskqueue"
+	"google.golang.org/appengine/user"
 
 	// appengine_new "google.golang.org/appengine"
 	// "google.golang.org/appengine/log"
