@@ -235,8 +235,7 @@ func doUncheckout(c context.Context) (*UserCharge, error) {
 func stripe(c context.Context, method, urlStr, body string) (*http.Response, error) {
 	cl := &http.Client{
 		Transport: &urlfetch.Transport{
-			Context:  c,
-			Deadline: time.Minute,
+			Context:  context.WithTimeout(c, time.Minute),
 		},
 	}
 	req, err := http.NewRequest(method, fmt.Sprintf("https://api.stripe.com/v1/%s", urlStr), strings.NewReader(body))

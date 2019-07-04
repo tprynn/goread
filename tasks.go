@@ -224,8 +224,7 @@ func SubscribeFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	cl := &http.Client{
 		Transport: &urlfetch.Transport{
-			Context:  c,
-			Deadline: time.Minute,
+			Context:  context.WithTimeout(c, time.Minute),
 		},
 	}
 	resp, err := cl.Do(req)
@@ -296,8 +295,7 @@ func fetchFeed(c context.Context, origUrl, fetchUrl string) (*Feed, []*Story, er
 
 	cl := &http.Client{
 		Transport: &urlfetch.Transport{
-			Context:  c,
-			Deadline: time.Minute,
+			Context:  context.WithTimeout(c, time.Minute),
 		},
 	}
 	if resp, err := cl.Get(fetchUrl); err == nil && resp.StatusCode == http.StatusOK {
