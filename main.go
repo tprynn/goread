@@ -17,6 +17,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -212,7 +213,7 @@ func addFeed(c context.Context, userid string, outline *OpmlOutline) error {
 	return nil
 }
 
-func mergeUserOpml(c appengine.Context, ud *UserData, outlines ...*OpmlOutline) error {
+func mergeUserOpml(c context.Context, ud *UserData, outlines ...*OpmlOutline) error {
 	var fs Opml
 	json.Unmarshal(ud.Opml, &fs)
 	urls := make(map[string]bool)

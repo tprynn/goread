@@ -19,6 +19,7 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
@@ -100,7 +101,7 @@ type UserStar struct {
 	Created time.Time      `datastore:"c"`
 }
 
-func starKey(c appengine.Context, feed, story string) *UserStar {
+func starKey(c context.Context, feed, story string) *UserStar {
 	cu := user.Current(c)
 	gn := goon.FromContext(c)
 	u := User{Id: cu.ID}
@@ -140,7 +141,7 @@ type Feed struct {
 	NoAds      bool          `datastore:"o,noindex" json:"-"`
 }
 
-func (f *Feed) Subscribe(c appengine.Context) {
+func (f *Feed) Subscribe(c context.Context) {
 	if !f.IsSubscribed() {
 		gn := goon.FromContext(c)
 		gn.Put(&Log{
