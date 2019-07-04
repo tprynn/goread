@@ -156,7 +156,7 @@ func (f *Feed) Subscribe(c context.Context) {
 		if _, err := taskqueue.Add(c, t, "update-manual"); err != nil {
 			log.Errorf(c, "taskqueue error: %v", err.Error())
 		} else {
-			c.Warningf("subscribe feed: %v", f.Url)
+			log.Warningf(c, "subscribe feed: %v", f.Url)
 		}
 	}
 }

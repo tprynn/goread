@@ -416,9 +416,9 @@ func ParseFeed(c context.Context, contentType, origUrl, fetchUrl string, body []
 		feed, stories, rdferr = parseRDF(c, body, cr)
 	}
 	if feed == nil {
-		c.Warningf("atom parse error: %s", atomerr.Error())
-		c.Warningf("xml parse error: %s", rsserr.Error())
-		c.Warningf("rdf parse error: %s", rdferr.Error())
+		log.Warningf(c, "atom parse error: %s", atomerr.Error())
+		log.Warningf(c, "xml parse error: %s", rsserr.Error())
+		log.Warningf(c, "rdf parse error: %s", rdferr.Error())
 		return nil, nil, fmt.Errorf("Could not parse feed data")
 	}
 	feed.Url = origUrl
@@ -508,7 +508,7 @@ func parseRSS(c context.Context, body []byte, charsetReader func(string, io.Read
 	if t, err := parseDate(c, &f, r.LastBuildDate, r.PubDate); err == nil {
 		f.Updated = t
 	} else {
-		c.Warningf("no rss feed date: %v", f.Link)
+		log.Warningf(c, "no rss feed date: %v", f.Link)
 	}
 	f.Link = r.BaseLink()
 	f.Hub = r.Hub()
@@ -647,7 +647,7 @@ func parseFix(c context.Context, f *Feed, ss []*Story, fetchUrl string) (*Feed, 
 	}
 	base, err := url.Parse(f.Link)
 	if err != nil {
-		c.Warningf("unable to parse link: %v", f.Link)
+		log.Warningf(c, "unable to parse link: %v", f.Link)
 	}
 
 	var nss []*Story
@@ -690,13 +690,13 @@ func parseFix(c context.Context, f *Feed, ss []*Story, fetchUrl string) (*Feed, 
 			if err == nil {
 				s.Link = link.String()
 			} else {
-				c.Warningf("unable to resolve link: %v", s.Link)
+				log.Warningf(c, "unable to resolve link: %v", s.Link)
 			}
 		}
 		const keySize = 500
 		sk := g.Key(s)
 		if kl := len(sk.String()); kl > keySize {
-			c.Warningf("key too long: %v, %v, %v", kl, f.Url, s.Id)
+			log.Warningf(c, "key too long: %v, %v, %v", kl, f.Url, s.Id)
 			continue
 		}
 		su, serr := url.Parse(s.Link)
