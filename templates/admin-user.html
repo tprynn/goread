@@ -1,0 +1,38 @@
+<html>
+<body>
+<table>
+	<tr><td>id</td><td>{{.User.Id}}</td></tr>
+	<tr><td>email</td><td>{{.User.Email}}</td></tr>
+	<tr><td>read</td><td>{{.User.Read}}</td></tr>
+	<tr><td>created</td><td>{{.User.Created}}</td></tr>
+	<tr><td>account</td><td>{{.User.Account}}</td></tr>
+	<tr><td>until</td><td>{{.User.Until}}</td></tr>
+	<tr>
+		<td>set until</td>
+		<td>
+			<form method="post">
+				<input type="text" name="until" value="YYYY-MM-DD">
+				<input type="submit">
+			</form>
+		</td>
+	</tr>
+</table>
+<a href="{{url "export-opml"}}?u={{.User.Id}}">OPML</a> {{len .Data.Opml}}:
+<br>
+<form method="post">
+<textarea rows="20" cols="80" name="opml">
+{{printf "%s" .Data.Opml}}
+</textarea>
+<br><input type="submit" value="save">
+</form>
+<table>
+{{range .Log}}
+	<tr>
+		<td>{{nanotime .Id | since}}</td>
+		<td>{{nanotime .Id}}</td>
+		<td>{{.Text}}</td>
+	</tr>
+{{end}}
+</table>
+</body>
+</html>

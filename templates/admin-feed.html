@@ -1,0 +1,51 @@
+<html>
+<body>
+
+<a href="{{url "admin-update-feed"}}?f={{.Feed.Url}}">update</a>
+<a href="{{url "admin-subhub-feed"}}?f={{.Feed.Url}}">pubsub subscribe</a>
+
+<table>
+	<tr><td>url</td><td>{{.Feed.Url}}</td></tr>
+	<tr><td>img</td><td>{{.Feed.Image}}</td></tr>
+	<tr><td>img</td><td><img src="{{.Feed.Image}}"></td></tr>
+	<tr><td>title</td><td>{{.Feed.Title}}</td></tr>
+	<tr><td>link</td><td>{{.Feed.Link}}</td></tr>
+	<tr><td>errors</td><td>{{.Feed.Errors}}</td></tr>
+</table>
+<table>
+	<tr><td>now</td><td>{{.Now}}</td></tr>
+	<tr><td>updated</td><td>{{.Feed.Updated}}</td><td>{{since .Feed.Updated}}</td></tr>
+	<tr><td>date</td><td>{{.Feed.Date}}</td><td>{{since .Feed.Date}}</td></tr>
+	<tr><td>checked</td><td>{{.Feed.Checked}}</td><td>{{since .Feed.Checked}}</td></tr>
+	<tr><td>next</td><td>{{.Feed.NextUpdate}}</td><td>{{since .Feed.NextUpdate}}</td></tr>
+	<tr><td>subscribed</td><td>{{.Feed.Subscribed}}</td><td>{{since .Feed.Subscribed}}</td></tr>
+	<tr><td>last view</td><td>{{.Feed.LastViewed}}</td><td>{{since .Feed.LastViewed}}</td></tr>
+	<tr><td>average</td><td>{{.Feed.Average}}</td></tr>
+	<tr><td>is subbed</td><td>{{.Feed.IsSubscribed}}</td></tr>
+	<tr><td><a href="{{.Feed.Hub}}/subscription-details?hub.callback={{.Feed.PubSubURL}}&hub.topic={{.Feed.Url}}">pubsub</a></td></tr>
+</table>
+
+logs:
+<ul>
+{{range .Logs}}
+	<li>
+		{{nanotime .Id | since}}
+		{{nanotime .Id}}
+		{{.Text}}
+	</li>
+{{end}}
+</ul>
+
+stories:
+<ul>
+{{range .Stories}}
+	<li>
+		{{.Id}}
+		{{.Created}}
+		{{.Title}}
+	</li>
+{{end}}
+</ul>
+
+</body>
+</html>
