@@ -22,7 +22,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"html"
-	"html/template"
 	"io"
 	"io/ioutil"
 	"math/rand"
