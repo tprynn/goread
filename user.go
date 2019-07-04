@@ -278,7 +278,9 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	opmlMap := make(map[string]*OpmlOutline)
 	var merr error
 	c.Step("fetch feeds", func(c context.Context) {
-		gn := goon.FromContext(appengine.Timeout(c, time.Minute))
+		ct, cancel := context.WithTimeout(c, time.Minute);
+		defer cancel()
+		gn := goon.FromContext(ct)
 		for _, outline := range uf.Outline {
 			if outline.XmlUrl == "" {
 				for _, so := range outline.Outline {
@@ -314,7 +316,9 @@ func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 				c.Step(f.Title, func(c context.Context) {
 					defer wg.Done()
 					var stories []*Story
-					gn := goon.FromContext(appengine.Timeout(c, time.Minute))
+					ct, cancel := context.WithTimeout(c, time.Minute);
+					defer cancel()
+					gn := goon.FromContext(ct)
 
 					if !f.Date.Before(u.Read) {
 						fk := gn.Key(f)

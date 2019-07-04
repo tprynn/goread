@@ -249,7 +249,9 @@ func SubscribeFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 func UpdateFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	q := datastore.NewQuery("F").KeysOnly().Filter("n <=", time.Now())
 	q = q.Limit(10 * 60 * 2) // 10/s queue, 2 min cron
-	it := q.Run(appengine.Timeout(c, time.Minute))
+	ct, cancel := context.WithTimeout(c, time.Minute);
+	defer cancel()
+	it := q.Run(ct)
 	tc := make(chan *taskqueue.Task)
 	done := make(chan bool)
 	i := 0
@@ -451,7 +453,9 @@ func updateFeed(c context.Context, url string, feed *Feed, stories []*Story, upd
 }
 
 func UpdateFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
-	gn := goon.FromContext(appengine.Timeout(c, time.Minute))
+	ct, cancel := context.WithTimeout(c, time.Minute);
+	defer cancel()
+	gn := goon.FromContext(ct)
 	url := r.FormValue("feed")
 	if url == "" {
 		log.Errorf(c, "empty update feed")
@@ -523,7 +527,8 @@ func UpdateFeedLast(c context.Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteBlobs(c context.Context, w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.Timeout(c, time.Minute)
+	ctx, cancel := context.WithTimeout(c, time.Minute);
+	defer cancel()
 	q := datastore.NewQuery("__BlobInfo__").KeysOnly()
 	it := q.Run(ctx)
 	wg := sync.WaitGroup{}
@@ -561,7 +566,8 @@ func DeleteBlobs(c context.Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteOldFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.Timeout(c, time.Minute)
+	ctx, cancel := context.WithTimeout(c, time.Minute);
+	defer cancel()
 	gn := goon.FromContext(c)
 	q := datastore.NewQuery(gn.Kind(&Feed{})).Filter("n=", timeMax).KeysOnly()
 	if cur, err := datastore.DecodeCursor(r.FormValue("c")); err == nil {
@@ -602,7 +608,8 @@ func DeleteOldFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteOldFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.Timeout(c, time.Minute)
+	ctx, cancel := context.WithTimeout(c, time.Minute);
+	defer cancel()
 	g := goon.FromContext(ctx)
 	oldDate := time.Now().Add(-time.Hour * 24 * 90)
 	feed := Feed{Url: r.FormValue("f")}
