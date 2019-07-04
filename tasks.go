@@ -222,9 +222,11 @@ func SubscribeFeed(c context.Context, w http.ResponseWriter, r *http.Request) {
 	u.Add("hub.topic", fu.String())
 	req, err := http.NewRequest("POST", f.Hub, strings.NewReader(u.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	t, cancel := context.WithTimeout(c, time.Minute);
+	defer cancel()
 	cl := &http.Client{
 		Transport: &urlfetch.Transport{
-			Context:  context.WithTimeout(c, time.Minute),
+			Context:  t,
 		},
 	}
 	resp, err := cl.Do(req)
@@ -293,9 +295,11 @@ func fetchFeed(c context.Context, origUrl, fetchUrl string) (*Feed, []*Story, er
 		}
 	}
 
+	t, cancel := context.WithTimeout(c, time.Minute);
+	defer cancel()
 	cl := &http.Client{
 		Transport: &urlfetch.Transport{
-			Context:  context.WithTimeout(c, time.Minute),
+			Context:  t,
 		},
 	}
 	if resp, err := cl.Get(fetchUrl); err == nil && resp.StatusCode == http.StatusOK {
