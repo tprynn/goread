@@ -65,6 +65,9 @@ func LoginGoogle(c context.Context, w http.ResponseWriter, r *http.Request) {
 			u.Read = time.Now().Add(-time.Hour * 24)
 			gn.Put(u)
 		}
+	} else {
+		log.Infof(c, "No user session found")
+		// http.Redirect(w, r, routeUrl("login-redirect"), http.StatusFound)
 	}
 
 	http.Redirect(w, r, routeUrl("main"), http.StatusFound)
@@ -235,6 +238,17 @@ const accountFreeDuration = 30 * time.Hour * 24 // 30 days
 
 func ListFeeds(c context.Context, w http.ResponseWriter, r *http.Request) {
 	cu := user.Current(c)
+
+	if cu == nil {
+		b, _ := json.Marshal(struct {
+			ErrorAccount bool
+		}{
+			true,
+		})
+		w.Write(b)
+		return
+	}
+
 	gn := goon.FromContext(c)
 	u := &User{Id: cu.ID}
 	ud := &UserData{Id: "data", Parent: gn.Key(u)}

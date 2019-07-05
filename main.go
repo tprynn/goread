@@ -24,7 +24,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	// "github.com/tprynn/goread/_third_party/github.com/MiniProfiler/go/miniprofiler"
@@ -71,7 +70,7 @@ func RegisterHandlers(r *mux.Router) {
 	router = r
 	router.Handle("/", wrap(Main)).Name("main")
 	router.Handle("/login/google", wrap(LoginGoogle)).Name("login-google")
-	router.Handle("/login/redirect", wrap(LoginRedirect))
+	router.Handle("/login/redirect", wrap(LoginRedirect)).Name("login-redirect")
 	router.Handle("/logout", wrap(Logout)).Name("logout")
 	router.Handle("/push", wrap(SubscribeCallback)).Name("subscribe-callback")
 	router.Handle("/tasks/import-opml", wrap(ImportOpmlTask)).Name("import-opml-task")
@@ -145,27 +144,35 @@ func wrap(f func(context.Context, http.ResponseWriter, *http.Request)) http.Hand
 }
 
 func main() {
-	appengine.Main();
+	router := mux.NewRouter()
+	RegisterHandlers(router)
+	http.Handle("/", router)
+	appengine.Main()
 }
 
 func Main(c context.Context, w http.ResponseWriter, r *http.Request) {
-	ua := r.Header.Get("User-Agent")
-	mobile := strings.Contains(ua, "Mobi")
-	if desktop, _ := r.Cookie("goread-desktop"); desktop != nil {
-		switch desktop.Value {
-		case "desktop":
-			mobile = false
-		case "mobile":
-			mobile = true
-		}
-	}
-	if mobile {
-		w.Write(mobileIndex)
-	} else {
-		if err := templates.ExecuteTemplate(w, "base.html", includes(c, w, r)); err != nil {
-			log.Errorf(c, "%v", err)
-			serveError(w, err)
-		}
+	// ua := r.Header.Get("User-Agent")
+	// mobile := strings.Contains(ua, "Mobi")
+	// if desktop, _ := r.Cookie("goread-desktop"); desktop != nil {
+	// 	switch desktop.Value {
+	// 	case "desktop":
+	// 		mobile = false
+	// 	case "mobile":
+	// 		mobile = true
+	// 	}
+	// }
+	// if mobile {
+	// 	w.Write(mobileIndex)
+	// } else {
+	// 	if err := templates.ExecuteTemplate(w, "base.html", includes(c, w, r)); err != nil {
+	// 		log.Errorf(c, "%v", err)
+	// 		serveError(w, err)
+	// 	}
+	// }
+
+	if err := templates.ExecuteTemplate(w, "base.html", includes(c, w, r)); err != nil {
+		log.Errorf(c, "%v", err)
+		serveError(w, err)
 	}
 }
 
