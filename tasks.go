@@ -284,18 +284,8 @@ func fetchFeed(c context.Context, origUrl, fetchUrl string) (*Feed, []*Story, er
 		u.Host = u.Path
 		u.Path = ""
 	}
-	const clURL = "craigslist.org"
-	if strings.HasSuffix(u.Host, clURL) || u.Host == clURL {
-		return nil, nil, fmt.Errorf("Craigslist blocks our server host: not possible to subscribe")
-	}
-	if u.Scheme == "" {
-		u.Scheme = "http"
-		origUrl = u.String()
-		fetchUrl = origUrl
-		if origUrl == "" {
-			return nil, nil, fmt.Errorf("bad URL")
-		}
-	}
+
+	u.Scheme = "https"
 
 	t, cancel := context.WithTimeout(c, time.Minute);
 	defer cancel()

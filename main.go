@@ -131,13 +131,15 @@ func RegisterHandlers(r *mux.Router) {
 }
 
 func wrap(f func(context.Context, http.ResponseWriter, *http.Request)) http.Handler {
-	// handler := wrap(f)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		if isDevServer {
 			w.Header().Add("Access-Control-Allow-Origin", r.Header.Get("Origin"))
 			w.Header().Add("Access-Control-Allow-Credentials", "true")
 		}
-		// handler.ServeHTTP(w, r)
+
+		w.Header().Add("Content-Security-Policy", "default-src 'self' https://*; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*; style-src 'self' 'unsafe-inline' https://*")
+
 		c := appengine.NewContext(r);
 		f(c, w, r);
 	})

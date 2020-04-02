@@ -723,6 +723,7 @@ func loadImage(c context.Context, f *Feed) {
 	if err != nil {
 		return
 	}
+	u.Scheme = "https"
 	u.RawQuery = ""
 	u.Fragment = ""
 	p := "/favicon.ico"
